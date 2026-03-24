@@ -1,0 +1,156 @@
+# AutoSD Image Builder Manifest
+# Deploys Eclipse Ankaios in QM partition for container orchestration
+
+name: ankaios_demo
+
+# Root partition configuration
+# Keep root partition minimal - only critical workloads
+content:
+  repos:
+     - id: ankaios
+       baseurl: https://download.copr.fedorainfracloud.org/results/pingou/ankaios/epel-10-$arch/
+  rpms:
+    # Essential utilities for system management
+    - vim-enhanced
+    - dnf
+    # SSH for remote access (demo/testing only)
+    - openssh-server
+    - openssh-clients
+    # CLI tool for interacting with Ankaios from root partition
+    - ankaios
+
+  add_files:
+    # Test script for verifying Ankaios deployment
+    - path: /usr/bin/test-ankaios.sh
+      source_path: test-ankaios.sh
+
+    # CLI config for accessing Ankaios in QM partition from root partition
+    - path: /etc/ankaios/ank.conf
+      source_path: configs/ank.conf
+
+  chmod_files:
+    - path: /usr/bin/test-ankaios.sh
+      mode: "0755"
+
+  systemd:
+    enabled_services:
+      - sshd.service
+
+# QM Partition configuration
+# All Ankaios components and workloads run here
+qm:
+  # Memory limits for QM partition
+  # Ensures QM workloads can be throttled to protect critical apps
+  memory_limit:
+    max: 50%    # Maximum 50% of system memory
+    high: 45%   # Warning threshold at 45%
+
+  content:
+    # Install Ankaios packages from COPR repository
+    repos:
+      - id: ankaios
+        baseurl: https://download.copr.fedorainfracloud.org/results/pingou/ankaios/epel-10-$arch/
+
+    # Create certificate directory
+    make_dirs:
+      - path: /etc/ankaios/certs
+        parents: true
+        exist_ok: true
+      - path: /etc/systemd/system/ank-server.service.d
+        parents: true
+        exist_ok: true
+
+    rpms:
+      # Full Ankaios deployment in QM partition
+      - ankaios           # CLI tool
+      - ankaios-server    # Orchestration server
+      - ankaios-agent     # Agent for workload execution
+      # Container runtime
+      - podman
+
+    # Pre-pull container images for demo workloads
+    container_images:
+      - source: docker.io/library/nginx
+        tag: latest
+        name: localhost/nginx
+      - source: docker.io/library/hello-world
+        tag: latest
+        name: localhost/hello-world
+
+    # Add Ankaios configuration files to QM partition
+    add_files:
+      # Server configuration
+      - path: /etc/ankaios/ank-server.conf
+        source_path: configs/ank-server.conf
+
+      # Agent configuration
+      - path: /etc/ankaios/ank-agent.conf
+        source_path: configs/ank-agent.conf
+
+      # Startup state manifest with demo workloads
+      - path: /etc/ankaios/state.yaml
+        source_path: configs/state.yaml
+
+      # CLI configuration (system-wide)
+      - path: /etc/ankaios/ank.conf
+        source_path: configs/ank.conf
+
+      # TLS/mTLS certificates
+      - path: /etc/ankaios/certs/ca.pem
+        source_path: certs/ca.pem
+
+      - path: /etc/ankaios/certs/server.pem
+        source_path: certs/server.pem
+
+      - path: /etc/ankaios/certs/server-key.pem
+        source_path: certs/server-key.pem
+
+      - path: /etc/ankaios/certs/agent.pem
+        source_path: certs/agent.pem
+
+      - path: /etc/ankaios/certs/agent-key.pem
+        source_path: certs/agent-key.pem
+
+      - path: /etc/ankaios/certs/cli.pem
+        source_path: certs/cli.pem
+
+      - path: /etc/ankaios/certs/cli-key.pem
+        source_path: certs/cli-key.pem
+
+      # Systemd drop-in for server debugging
+      - path: /etc/systemd/system/ank-server.service.d/debug.conf
+        source_path: configs/ank-server-debug.conf
+
+    # Set restrictive permissions on private key files
+    chmod_files:
+      - path: /etc/ankaios/certs/server-key.pem
+        mode: "0600"
+      - path: /etc/ankaios/certs/agent-key.pem
+        mode: "0600"
+      - path: /etc/ankaios/certs/cli-key.pem
+        mode: "0600"
+
+    # Enable Ankaios systemd services in QM partition
+    systemd:
+      enabled_services:
+        - ank-server.service
+        - ank-agent.service
+
+# Image configuration
+image:
+  image_size: 10 GiB
+  partitions:
+    boot:
+      size: 300 MiB
+    var:
+      # Larger var partition for container storage
+      relative_size: 0.4
+
+# Authentication
+auth:
+  # Root password: "password"
+  root_password: $6$xoLqEUz0cGGJRx01$H3H/bFm0myJPULNMtbSsOFd/2BnHqHkMD92Sfxd.EKM9hXTWSmELG8cf205l6dktomuTcgKGGtGDgtvHVXSWU.
+  # SSH configuration for demo/testing
+  sshd_config:
+    PasswordAuthentication: true
+    PermitRootLogin: true
