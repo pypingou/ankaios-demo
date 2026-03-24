@@ -1,0 +1,27 @@
+# Ankaios Startup State Manifest
+# This defines the initial workloads to be orchestrated
+
+apiVersion: v1
+workloads:
+  # Example nginx web server
+  nginx-demo:
+    runtime: podman
+    agent: qm_agent
+    restartPolicy: ALWAYS
+    tags:
+      app: webserver
+      demo: ankaios-autosd
+    runtimeConfig: |
+      image: localhost/nginx:latest
+      commandOptions: ["-p", "8080:80"]
+
+  # Example hello-world test container
+  hello-world:
+    runtime: podman
+    agent: qm_agent
+    restartPolicy: ON_FAILURE
+    tags:
+      app: test
+      demo: ankaios-autosd
+    runtimeConfig: |
+      image: localhost/hello-world:latest
