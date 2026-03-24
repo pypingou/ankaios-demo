@@ -1,0 +1,6 @@
+_build/
+*.img
+*.qcow2
+*~
+.claude/
+certs/
