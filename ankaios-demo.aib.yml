@@ -59,6 +59,9 @@ qm:
       - path: /etc/systemd/system/ank-server.service.d
         parents: true
         exist_ok: true
+      - path: /var/lib/containers/storage
+        parents: true
+        exist_ok: true
 
     rpms:
       # Full Ankaios deployment in QM partition
@@ -79,6 +82,10 @@ qm:
 
     # Add Ankaios configuration files to QM partition
     add_files:
+      # podman storage config
+      - path: /etc/containers/storage.conf
+        source_path: configs/storage.conf
+
       # Server configuration
       - path: /etc/ankaios/ank-server.conf
         source_path: configs/ank-server.conf
