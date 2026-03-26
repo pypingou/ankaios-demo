@@ -168,6 +168,20 @@ podman exec qm journalctl -u ank-agent -f
 podman exec qm podman logs <container-name>
 ```
 
+## Remote Fleet Management
+
+The fleet connector enables remote MQTT-based orchestration, allowing you
+to manage workloads across multiple vehicles from a central location.
+
+See [containers/fleet-connector/README.md](containers/fleet-connector/README.md)
+for a complete demo of:
+- Remote workload deployment via MQTT
+- Querying vehicle state from your laptop
+- Managing multiple vehicles with different VINs
+
+This demonstrates how Ankaios can be integrated into automotive fleet
+management systems for over-the-air workload updates.
+
 ## File Structure
 
 ```
