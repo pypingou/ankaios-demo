@@ -27,6 +27,9 @@ MQTT Broker (cloud) → Fleet Connector (vehicle) → Ankaios → Workloads
    ./fleet-get-state.sh              # Check workloads
    ./fleet-apply.sh workload.yaml    # Deploy
    ./fleet-delete.sh workload_name   # Remove
+
+   # If broker is not on localhost:
+   MQTT_BROKER=192.168.1.100 ./fleet-get-state.sh
    ```
 
 ## Management Scripts

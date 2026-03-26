@@ -22,7 +22,8 @@ This demo shows how to deploy Eclipse Ankaios container orchestrator on Red Hat 
 │  │  ┌──────────────────────────────────────┐     │  │
 │  │  │  Orchestrated Containers             │     │  │
 │  │  │  ├─ nginx (web server example)       │     │  │
-│  │  │  └─ hello-world (test container)     │     │  │
+│  │  │  ├─ hello-world (test container)     │     │  │
+│  │  │  └─ fleet-connector (MQTT bridge)    │     │  │
 │  │  └──────────────────────────────────────┘     │  │
 │  │                                               │  │
 │  │  Podman (QM instance)                         │  │
@@ -54,6 +55,28 @@ First, generate the mTLS certificates for secure communication:
 This creates a `certs/` directory with CA, server, agent, and CLI certificates.
 
 **Note**: Certificates are git-ignored and must be generated locally for security.
+
+### Build Fleet Connector Container
+
+The fleet connector enables remote MQTT-based workload management and must be built before creating the image:
+
+```bash
+cd containers/fleet-connector
+./build.sh
+cd ../..
+```
+
+### Configure MQTT Broker Address
+
+Update the MQTT broker IP address in `configs/state.yaml` to match your laptop's IP:
+
+```bash
+# Edit configs/state.yaml and change MQTT_BROKER_ADDR
+# From: MQTT_BROKER_ADDR=192.168.1.22
+# To:   MQTT_BROKER_ADDR=<your-laptop-ip>
+```
+
+**Tip**: Find your laptop's IP with `ip addr show` or `hostname -I`
 
 ### Build the Image
 
@@ -158,6 +181,11 @@ ankaios-demo/
 │   ├── ank-agent.conf         # Ankaios agent configuration
 │   ├── ank.conf               # Ankaios CLI configuration
 │   └── state.yaml             # Initial workload manifest
+├── containers/
+│   └── fleet-connector/       # MQTT-based fleet management
+│       ├── fleet-connector.py # Main connector service
+│       ├── fleet-*.sh         # Management scripts
+│       └── README.md          # Fleet connector documentation
 ├── certs/ (generated)          # mTLS certificates (git-ignored)
 │   ├── ca.pem                 # Certificate Authority
 │   ├── server.pem/key.pem     # Server certificates
@@ -197,10 +225,11 @@ The QM partition is configured with:
 
 ### Sample Workloads
 
-Two demo containers are pre-configured in `configs/state.yaml`:
+Three demo containers are pre-configured in `configs/state.yaml`:
 
 1. **nginx-demo**: Web server on port 8080
 2. **hello-world**: Simple test container
+3. **fleet-connector**: MQTT bridge for remote workload management (requires external MQTT broker)
 
 ## Troubleshooting
 
