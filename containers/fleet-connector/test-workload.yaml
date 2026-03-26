@@ -1,0 +1,7 @@
+apiVersion: v1
+workloads:
+  mqtt_test:
+    agent: qm_agent
+    runtime: podman
+    runtimeConfig: |
+      image: localhost/hello-world:latest

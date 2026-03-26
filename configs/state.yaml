@@ -25,3 +25,31 @@ workloads:
       demo: ankaios-autosd
     runtimeConfig: |
       image: localhost/hello-world:latest
+
+  # Fleet connector to receive instructions from the MQTT broker
+  fleet_connector:
+    runtime: podman
+    agent: qm_agent
+    restartPolicy: ALWAYS
+    tags:
+      component: fleet-management
+    controlInterfaceAccess:
+      allowRules:
+        - type: StateRule
+          operation: Write
+          filterMasks: ["desiredState"]
+        - type: StateRule
+          operation: Read
+          filterMasks: ["desiredState", "workloadStates"]
+    runtimeConfig: |
+      image: localhost/fleet-connector:latest
+      commandOptions:
+        - "--network"
+        - "host"
+        - "-e"
+        - "MQTT_BROKER_ADDR=192.168.1.22"
+        - "-e"
+        - "MQTT_BROKER_PORT=1883"
+        - "-e"
+        - "VIN=demo_vehicle_001"
+

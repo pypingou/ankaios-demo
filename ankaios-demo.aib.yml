@@ -79,6 +79,10 @@ qm:
       - source: docker.io/library/hello-world
         tag: latest
         name: localhost/hello-world
+      - source: localhost/fleet-connector
+        tag: latest
+        name: localhost/fleet-connector
+        containers-transport: containers-storage
 
     # Add Ankaios configuration files to QM partition
     add_files:
@@ -145,6 +149,7 @@ qm:
 
 # Image configuration
 image:
+  selinux_mode: permissive
   image_size: 10 GiB
   partitions:
     boot:
