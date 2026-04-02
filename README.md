@@ -66,6 +66,19 @@ cd containers/fleet-connector
 cd ../..
 ```
 
+### Start MQTT Broker
+
+The fleet connector requires a running MQTT broker for remote management. Start it on your laptop:
+
+```bash
+cd containers/mosquitto
+./run.sh
+```
+
+Keep this running in a separate terminal. The broker will listen on port 1883.
+
+**Tip**: Use `./monitor.sh` in another terminal to watch all MQTT traffic for debugging.
+
 ### Configure MQTT Broker Address
 
 Update the MQTT broker IP address in `configs/state.yaml` to match your laptop's IP:
@@ -196,10 +209,13 @@ ankaios-demo/
 │   ├── ank.conf               # Ankaios CLI configuration
 │   └── state.yaml             # Initial workload manifest
 ├── containers/
-│   └── fleet-connector/       # MQTT-based fleet management
-│       ├── fleet-connector.py # Main connector service
-│       ├── fleet-*.sh         # Management scripts
-│       └── README.md          # Fleet connector documentation
+│   ├── fleet-connector/       # MQTT-based fleet management
+│   │   ├── fleet-connector.py # Main connector service
+│   │   ├── fleet-*.sh         # Management scripts
+│   │   └── README.md          # Fleet connector documentation
+│   └── mosquitto/             # MQTT broker for testing
+│       ├── run.sh             # Start broker
+│       └── monitor.sh         # Monitor MQTT traffic
 ├── certs/ (generated)          # mTLS certificates (git-ignored)
 │   ├── ca.pem                 # Certificate Authority
 │   ├── server.pem/key.pem     # Server certificates
