@@ -8,7 +8,7 @@ name: ankaios_demo
 content:
   repos:
      - id: ankaios
-       baseurl: https://download.copr.fedorainfracloud.org/results/pingou/ankaios/epel-10-$arch/
+       baseurl: https://download.copr.fedorainfracloud.org/results/pingou/ankaios-dev/epel-10-$arch/
   rpms:
     # Essential utilities for system management
     - vim-enhanced
@@ -49,7 +49,7 @@ qm:
     # Install Ankaios packages from COPR repository
     repos:
       - id: ankaios
-        baseurl: https://download.copr.fedorainfracloud.org/results/pingou/ankaios/epel-10-$arch/
+        baseurl: https://download.copr.fedorainfracloud.org/results/pingou/ankaios-dev/epel-10-$arch/
 
     # Create certificate directory
     make_dirs:
